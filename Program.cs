@@ -39,7 +39,7 @@ class Program
                     SearchProduct();
                     break;
                 case '3':
-                    
+                    ListProducts();
                     break;
                 case '4':
                     running = false;
@@ -135,6 +135,22 @@ class Program
         {
             Console.WriteLine("\nProdukt finns ej");
             System.Threading.Thread.Sleep(2000);
+        }
+
+        Console.WriteLine("\nTryck på valfri knapp för att återgå till huvudmenyn.");
+        Console.ReadKey();
+    }
+
+    static void ListProducts()
+    {
+        Console.Clear();
+        Console.WriteLine("Lista produkter\n");
+        Console.WriteLine("Namn\t SKU");
+        Console.WriteLine("----------------------------------------");
+
+        foreach (Product Product in Products)
+        {
+            Console.WriteLine($"{Product.ProductName}\t{Product.StockKeepingUnit}");
         }
 
         Console.WriteLine("\nTryck på valfri knapp för att återgå till huvudmenyn.");
