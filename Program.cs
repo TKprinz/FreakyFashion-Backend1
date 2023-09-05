@@ -36,7 +36,7 @@ class Program
                     RegisterProduct();
                     break;
                 case '2':
-                    
+                    SearchProduct();
                     break;
                 case '3':
                     
@@ -89,6 +89,56 @@ class Program
                 break;
             }
         }
+    }
+
+    static void SearchProduct()
+    {
+        Console.Clear();
+        Console.WriteLine("Sök produkt\n");
+
+        Console.Write("SKU: ");
+        string stockKeepingUnit = Console.ReadLine();
+
+        Product foundProduct = Products.Find(v => v.StockKeepingUnit == stockKeepingUnit);
+
+        Console.WriteLine("\n");
+
+        if (foundProduct != null)
+        {
+            Console.WriteLine($"Namn: {foundProduct.ProductName}");
+            Console.WriteLine($"SKU: {foundProduct.StockKeepingUnit}");
+            Console.WriteLine($"Beskrivning: {foundProduct.Description}");
+            Console.WriteLine($"Bild (URL): {foundProduct.Image}");
+            Console.WriteLine($"Pris: {foundProduct.Price}");
+
+            Console.WriteLine("\n(R)adera produkt?");
+            var key = Console.ReadKey().Key;
+            Console.SetCursorPosition(0, Console.CursorTop - 2);
+            if (key == ConsoleKey.R)
+            {
+                Console.WriteLine("\nRadera produkt? (J)a  (N)ej");
+                var confirmationKey = Console.ReadKey().Key;
+                if (confirmationKey == ConsoleKey.J)
+                {
+                    Products.Remove(foundProduct);
+                    Console.WriteLine("\nProdukt raderad");
+                    System.Threading.Thread.Sleep(2000);
+                }
+                else
+                {
+                    Console.WriteLine("\nProdukten har inte raderats");
+                    System.Threading.Thread.Sleep(2000);
+                }
+            }
+        }
+        else
+        {
+            Console.WriteLine("\nProdukt finns ej");
+            System.Threading.Thread.Sleep(2000);
+        }
+
+        Console.WriteLine("\nTryck på valfri knapp för att återgå till huvudmenyn.");
+        Console.ReadKey();
     }
 }
 
