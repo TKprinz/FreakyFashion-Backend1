@@ -1,18 +1,15 @@
-﻿class Product
+﻿using ProjektArbeteFreakyFashion.Domain;
+using ProjektArbeteFreakyFashion.Data;
+using static System.Console;
 
-{
-    public string ProductName { get; set; }
-    public string StockKeepingUnit { get; set; }
-    public string Description { get; set; }
-    public string Image { get; set; }
-    public string Price { get; set; }
+namespace ProjektArbeteFreakyFashion;
 
 
 
-}
+
 class Program
 {
-    static List<Product> Products = new List<Product>();
+
 
     static void Main(string[] args)
     {
@@ -20,15 +17,14 @@ class Program
 
         while (running)
         {
-            Console.Clear();
+            Clear();
 
-            Console.WriteLine("1. Ny produkt");
-            Console.WriteLine("2. Sök produkt");
-            Console.WriteLine("3. Lista produkter");
-            Console.WriteLine("4. Avsluta");
+            WriteLine("1. Ny produkt");
+            WriteLine("2. Sök produkt");
+            WriteLine("3. Avsluta");
 
-            ConsoleKeyInfo keyInfo = Console.ReadKey();
-            Console.WriteLine();
+            ConsoleKeyInfo keyInfo = ReadKey();
+            WriteLine();
 
             switch (keyInfo.KeyChar)
             {
@@ -39,9 +35,6 @@ class Program
                     SearchProduct();
                     break;
                 case '3':
-                    ListProducts();
-                    break;
-                case '4':
                     running = false;
                     break;
             }
@@ -50,112 +43,117 @@ class Program
 
     static void RegisterProduct()
     {
-        Console.Clear();
-        Console.WriteLine("Registrera produkt\n");
+        Clear();
+        WriteLine("Registrera produkt\n");
 
-        Product product = new Product();
 
-        Console.Write("Namn: ");
-        product.ProductName = Console.ReadLine();
 
-        Console.Write("SKU: ");
-        product.StockKeepingUnit = Console.ReadLine();
+        var productName = GetUserInput("Namn");
+        var stockKeepingUnit = GetUserInput("SKU");
+        var description = GetUserInput("Beskrivning");
+        var image = GetUserInput("Bild (URL)");
+        var price = GetUserInput("Pris");
 
-        Console.Write("Beskrivning: ");
-        product.Description = Console.ReadLine();
-
-        Console.Write("Bild (URL): ");
-        product.Image = Console.ReadLine();
-
-        Console.Write("Pris: ");
-        product.Price = Console.ReadLine();
-
-        Console.WriteLine("\nÄr detta korrekt? (J)a   (N)ej");
-
-        while (true)
+        var product = new Product
         {
-            var key = Console.ReadKey(true).Key;
-            if (key == ConsoleKey.J)
-            {
-                Products.Add(product);
-                Console.WriteLine("\nProdukt sparad");
-                System.Threading.Thread.Sleep(2000);
-                break;
-            }
-            else if (key == ConsoleKey.N)
-            {
-                Console.WriteLine("\nProduktregistrering avbruten");
-                System.Threading.Thread.Sleep(2000);
-                break;
-            }
+            ProductName = productName,
+            StockKeepingUnit = stockKeepingUnit,
+            Description = description,
+            Image = image,
+            Price = price
+        };
+
+
+
+        WriteLine("\nÄr detta korrekt? (J)a   (N)ej");
+
+
+
+        var key = ReadKey(true).Key;
+        if (key == ConsoleKey.J)
+        {
+            SaveProduct(product);
+            WriteLine("\nProdukt sparad");
+            System.Threading.Thread.Sleep(2000);
+
         }
+        else if (key == ConsoleKey.N)
+        {
+            WriteLine("\nProduktregistrering avbruten");
+            System.Threading.Thread.Sleep(2000);
+
+        }
+
     }
 
-    static void SearchProduct()
+    private static void SearchProduct()
     {
-        Console.Clear();
-        Console.WriteLine("Sök produkt\n");
 
-        Console.Write("SKU: ");
-        string stockKeepingUnit = Console.ReadLine();
+        Clear();
 
-        Product foundProduct = Products.Find(v => v.StockKeepingUnit == stockKeepingUnit);
+        string skuNumber = GetUserInput("SKU");
 
-        Console.WriteLine("\n");
+        Clear();
 
-        if (foundProduct != null)
+        var product = GetProductBySkuNumber(skuNumber);
+
+        if (product is not null)
         {
-            Console.WriteLine($"Namn: {foundProduct.ProductName}");
-            Console.WriteLine($"SKU: {foundProduct.StockKeepingUnit}");
-            Console.WriteLine($"Beskrivning: {foundProduct.Description}");
-            Console.WriteLine($"Bild (URL): {foundProduct.Image}");
-            Console.WriteLine($"Pris: {foundProduct.Price}");
+            WriteLine($"Namn: {product.ProductName}");
+            WriteLine($"SKU: {product.StockKeepingUnit}");
+            WriteLine($"Beskrivning: {product.Description}");
+            WriteLine($"Pris: {product.Price}");
 
-            Console.WriteLine("\n(R)adera produkt?");
-            var key = Console.ReadKey().Key;
-            Console.SetCursorPosition(0, Console.CursorTop - 2);
-            if (key == ConsoleKey.R)
-            {
-                Console.WriteLine("\nRadera produkt? (J)a  (N)ej");
-                var confirmationKey = Console.ReadKey().Key;
-                if (confirmationKey == ConsoleKey.J)
-                {
-                    Products.Remove(foundProduct);
-                    Console.WriteLine("\nProdukt raderad");
-                    System.Threading.Thread.Sleep(2000);
-                }
-                else
-                {
-                    Console.WriteLine("\nProdukten har inte raderats");
-                    System.Threading.Thread.Sleep(2000);
-                }
-            }
+
+            WaitUntil(ConsoleKey.Escape);
         }
         else
         {
-            Console.WriteLine("\nProdukt finns ej");
-            System.Threading.Thread.Sleep(2000);
-        }
+            WriteLine("Produkt finns ej");
 
-        Console.WriteLine("\nTryck på valfri knapp för att återgå till huvudmenyn.");
-        Console.ReadKey();
+            Thread.Sleep(2000);
+        }
     }
 
-    static void ListProducts()
+
+    private static Product? GetProductBySkuNumber(string skuNumber)
     {
-        Console.Clear();
-        Console.WriteLine("Lista produkter\n");
-        Console.WriteLine("Namn\t SKU");
-        Console.WriteLine("----------------------------------------");
+        using var context = new ApplicationDbContext();
 
-        foreach (Product Product in Products)
-        {
-            Console.WriteLine($"{Product.ProductName}\t{Product.StockKeepingUnit}");
-        }
+        var product = context
+            .Product
+            .FirstOrDefault(product => product.StockKeepingUnit == skuNumber);
 
-        Console.WriteLine("\nTryck på valfri knapp för att återgå till huvudmenyn.");
-        Console.ReadKey();
+        return product;
     }
+
+    private static void WaitUntil(ConsoleKey key)
+    {
+        while (ReadKey(true).Key != key) ;
+    }
+
+    private static string GetUserInput(string label)
+    {
+        Write($"{label}: ");
+
+        return ReadLine() ?? "";
+    }
+
+
+    private static void SaveProduct(Product product)
+    {
+        using var context = new ApplicationDbContext();
+
+        context.Product.Add(product);
+
+        // Här räknar DbContext ut vad som behöver ske i databasen för att säkerställa
+        // att data vi för tillfället enbart har i minnet, ska synkas med 
+        context.SaveChanges();
+    }
+
+
+
 }
 
-    
+
+
