@@ -13,6 +13,8 @@ class Program
 
     static void Main(string[] args)
     {
+
+        CursorVisible = false;
         bool running = true;
 
         while (running)
@@ -21,8 +23,7 @@ class Program
 
             WriteLine("1. Ny produkt");
             WriteLine("2. Sök produkt");
-            WriteLine("3. Radera produkt");
-            WriteLine("4. Avsluta");
+            WriteLine("3. Avsluta");
 
             ConsoleKeyInfo keyInfo = ReadKey();
             WriteLine();
@@ -36,9 +37,6 @@ class Program
                     SearchProduct();
                     break;
                 case '3':
-                    DeleteProduct();
-                    break;
-                case '4':
                     running = false;
                     break;
             }
@@ -107,6 +105,28 @@ class Program
             WriteLine($"Beskrivning: {product.Description}");
             WriteLine($"Pris: {product.Price}");
 
+            WriteLine("\nTryck på R för att radera produkten eller Escape för att avbryta.");
+
+            ConsoleKeyInfo keyInfo = ReadKey();
+            Clear();
+
+            if (keyInfo.Key == ConsoleKey.R)
+            {
+                WriteLine("Är du säker? (J)A / (N)ej");
+                ConsoleKeyInfo confirmKey = ReadKey();
+
+                if (confirmKey.Key == ConsoleKey.J)
+                {
+                    Clear();
+                    DeleteProduct(product);
+                    WriteLine("Produkt raderad");
+
+                }
+            }
+            else
+            {
+                WriteLine("Radering avbruten");
+            }
 
             WaitUntil(ConsoleKey.Escape);
         }
@@ -119,50 +139,7 @@ class Program
 
         WriteLine("\nTryck på valfri knapp för att återgå till huvudmenyn.");
         ReadKey();
-    }
-
-    private static void DeleteProduct()
-    {
-        Clear();
-
-        string skuNumber = GetUserInput("SKU");
-
-
-
-        var product = GetProductBySkuNumber(skuNumber);
-
-        Clear();
-
-        if (product is not null)
-        {
-            WriteLine($"Namn: {product.ProductName}");
-            WriteLine($"SKU: {product.StockKeepingUnit}");
-            WriteLine($"Beskrivning: {product.Description}");
-            WriteLine($"Pris: {product.Price}");
-
-            WriteLine("\nTryck på R för att radera produkten eller Escape för att avbryta.");
-
-            ConsoleKeyInfo keyInfo = ReadKey();
-            Clear();
-            if (keyInfo.Key == ConsoleKey.R)
-            {
-                DeleteProduct(product);
-
-                WriteLine("Produkt raderad");
-            }
-            else
-            {
-                WriteLine("Radering avbruten");
-            }
-        }
-        else
-        {
-            WriteLine("Produkt saknas");
-        }
-
-        Thread.Sleep(2000);
-    }
-
+    } 
 
     private static void DeleteProduct(Product product)
     {
@@ -208,7 +185,6 @@ class Program
         // att data vi för tillfället enbart har i minnet, ska synkas med 
         context.SaveChanges();
     }
-
 
 
 }
